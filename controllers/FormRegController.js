@@ -1,5 +1,11 @@
+const Form = async (req, res) => {
+    // console.log("connect")
+        
+}
 
 
-const form = async (req, res) => {
-    
+
+
+module.exports = {
+    Form
 }
