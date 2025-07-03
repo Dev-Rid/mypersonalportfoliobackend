@@ -15,11 +15,11 @@ app.use(cors())
 app.use("/api", FormRouter)
 
 
-const PORT = process.env.PORT 
+const PORT = process.env.PORT
 
 mongoose.connect(process.env.MONGO_URL)
     .then(() =>{
-        app.listen("localhost", PORT, () => {
+        app.listen(PORT, "localhost", () => {
             console.log("server is running on port " + PORT);  
         })
     })

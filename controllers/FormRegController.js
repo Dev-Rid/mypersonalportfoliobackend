@@ -9,6 +9,7 @@ const Form = async (req, res) => {
        await newMessage.save();
        
        res.status(200).json({ message: "Message received!", newMessage })
+       console.log("message:", newMessage)
        
     } catch (error) {
         console.error("Error saving message:", error);
