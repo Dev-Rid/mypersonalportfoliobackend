@@ -1,26 +1,150 @@
-const Message = require("../model/message")
+// const Message = require("../model/message")
+// const nodemailer = require("nodemailer")
 
 
+// // mailing
+// const transporter = nodemailer.createTransport({
+//     service: "gmail",
+//     auth: {
+//         user: process.env.EMAIL_USER,
+//         pass: process.env.EMAIL_PASS
+//     }
+// })
+
+
+// const Form = async (req, res) => {
+//     const { name, email, subject, message } = req.body;
+
+//     const mailOptions = {
+//         from: `"${name}" <${email}>`,
+//         to: process.env.EMAIL_RECEIVER,
+//         subject: `New Contact Message: ${subject}`,
+//         text: `
+//             You received a new message from your portfolio:
+
+//             Name: ${name}
+//             Email: ${email}
+//             Subject: ${subject}
+//             Message: ${message}
+//         `
+//     }
+
+
+
+//     try{
+//         const newMessage =  new Message({ name, email, subject, message}) 
+//         await newMessage.save();
+       
+//         await transporter.sendMail(mailOptions);
+
+//         res.status(200).json({ message: "Message received!", newMessage })
+//         console.log("message:", newMessage)
+       
+//         if (!name || !email || !subject || !message) {
+//             return res.status(400).json({ error: "All fields are required" });
+//         }
+
+//     } catch (error) {
+//         console.error("Error saving message:", error);
+//         res.status(500).json({ error: "Failed to save message. Please try again later." });
+//     }
+
+// }
+
+
+// module.exports = {
+//     Form
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const Message = require("../model/message");
+const nodemailer = require("nodemailer");
+
+// 📬 Configure the transporter
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER, 
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+// 📨 Contact form handler
 const Form = async (req, res) => {
+
     const { name, email, subject, message } = req.body;
 
-    try{
-       const newMessage =  new Message({ name, email, subject, message}) 
-       await newMessage.save();
-       
-       res.status(200).json({ message: "Message received!", newMessage })
-       console.log("message:", newMessage)
-       
-    } catch (error) {
-        console.error("Error saving message:", error);
-        res.status(500).json({ error: "Failed to save message. Please try again later." });
+    // ✅ Validate inputs before proceeding
+    if (!name || !email || !subject || !message) {
+        return res.status(400).json({ error: "All fields are required" });
     }
 
-}
+    //  Email configuration
+    const mailOptions = {
+        from: `"${name}" <${email}>`,
+        to: process.env.EMAIL_RECEIVER,
+        subject: `New Contact Message: ${subject}`,
+        text: `
+            You received a new message from your portfolio:
 
+            Name: ${name}
+            Email: ${email}
+            Subject: ${subject}
+            Message: ${message}
+        `
+    };
 
+    try {
+        // Save to MongoDB
+        const newMessage = new Message({ name, email, subject, message });
+        await newMessage.save();
 
+        //  Send email
+        await transporter.sendMail(mailOptions)
+            .then(info => {
+                console.log("Email sent:", info.response)
+            })
+            .catch(error => {
+                console.log("Emil sending error:", error)
+            })
+
+        console.log("message saved and email sent:", newMessage);
+        res.status(200).json({ message: "Message received!", newMessage });
+
+    } catch (error) {
+        console.error("Error handling contact form:", error);
+        res.status(500).json({ error: "Something went wrong. Please try again later." });
+    }
+};
 
 module.exports = {
     Form
-}
+};
